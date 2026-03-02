@@ -1,0 +1,79 @@
+#############################################
+# Line endings & text normalization
+#############################################
+* text=auto eol=lf
+
+# Windows scripts (if you have any)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+#############################################
+# Unity: treat YAML-ish assets as text for diffs/merges
+# (Unity Smart Merge can be layered on later, but this helps now)
+#############################################
+*.cs        text diff=csharp
+*.shader    text
+*.cginc     text
+*.hlsl      text
+*.compute   text
+*.json      text
+*.asmdef    text
+*.asmref    text
+*.unity     text
+*.prefab    text
+*.mat       text
+*.asset     text
+*.controller text
+*.anim      text
+*.overrideController text
+*.playable  text
+*.physicMaterial text
+*.physicsMaterial2D text
+
+# Meta files must be versioned and treated as text
+*.meta      text
+
+#############################################
+# Git LFS: binaries / large assets
+# Track these with LFS so clones stay sane.
+#############################################
+# Common Unity binary asset formats
+*.fbx  filter=lfs diff=lfs merge=lfs -text
+*.obj  filter=lfs diff=lfs merge=lfs -text
+*.blend filter=lfs diff=lfs merge=lfs -text
+*.glb  filter=lfs diff=lfs merge=lfs -text
+*.gltf filter=lfs diff=lfs merge=lfs -text
+
+# Images (usually large; if your repo is tiny you can remove jpg/png from LFS,
+# but "set up for success" means assume you'll grow)
+*.png  filter=lfs diff=lfs merge=lfs -text
+*.jpg  filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+*.tga  filter=lfs diff=lfs merge=lfs -text
+*.tif  filter=lfs diff=lfs merge=lfs -text
+*.tiff filter=lfs diff=lfs merge=lfs -text
+*.psd  filter=lfs diff=lfs merge=lfs -text
+*.psb  filter=lfs diff=lfs merge=lfs -text
+*.exr  filter=lfs diff=lfs merge=lfs -text
+*.hdr  filter=lfs diff=lfs merge=lfs -text
+
+# Audio
+*.wav  filter=lfs diff=lfs merge=lfs -text
+*.mp3  filter=lfs diff=lfs merge=lfs -text
+*.ogg  filter=lfs diff=lfs merge=lfs -text
+*.flac filter=lfs diff=lfs merge=lfs -text
+
+# Video
+*.mp4  filter=lfs diff=lfs merge=lfs -text
+*.mov  filter=lfs diff=lfs merge=lfs -text
+*.avi  filter=lfs diff=lfs merge=lfs -text
+*.mkv  filter=lfs diff=lfs merge=lfs -text
+
+# Fonts
+*.ttf  filter=lfs diff=lfs merge=lfs -text
+*.otf  filter=lfs diff=lfs merge=lfs -text
+
+# Compressed / packaged assets (optional; keep if you ever store them)
+*.zip  filter=lfs diff=lfs merge=lfs -text
+*.7z   filter=lfs diff=lfs merge=lfs -text

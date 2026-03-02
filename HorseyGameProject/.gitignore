@@ -1,0 +1,83 @@
+############################
+# UNITY GENERATED FOLDERS  #
+############################
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+il2cppOutput/
+TestResults/
+coverage/
+
+############################
+# IDE / EDITOR             #
+############################
+.vscode/
+.idea/
+*.DotSettings.user
+
+# Visual Studio / Rider / MonoDevelop generated
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.opendb
+*.VC.db
+
+# JetBrains Rider Unity plugin (optional)
+[Aa]ssets/Plugins/Editor/JetBrains*
+
+############################
+# OS                       #
+############################
+.DS_Store
+Thumbs.db
+desktop.ini
+
+############################
+# UNITY CRASH / DIAGNOSTIC #
+############################
+sysinfo.txt
+
+############################
+# BUILDS / EXPORTS         #
+############################
+*.apk
+*.aab
+*.ipa
+*.app
+*.exe
+*.x86
+*.x86_64
+*.dSYM
+*.dSYM.meta
+*.obb
+*.unitypackage
+
+############################
+# ARCHIVES / DUMPS         #
+############################
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+
+############################
+# TEMP ART EXPORTS (opt-in patterns)
+############################
+/Assets/**/Export/
+/Assets/**/Exports/
+/Assets/**/TempArt/
+/Assets/**/Temp/
