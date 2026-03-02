@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 463f277b45fd9f248bf7bc9735035058
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 79902
+  packageName: Horse Animset Pro (Riding System)
+  packageVersion: 4.5.1
+  assetPath: Assets/Malbers Animations/Common/Scripts/Core/RigidbodyParameters.cs
+  uploadId: 848732
