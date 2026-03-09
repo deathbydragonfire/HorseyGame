@@ -1,17 +1,8 @@
 fileFormatVersion: 2
-guid: 08e90dbc61bf49a4b8fdf14eef3d3209
-timeCreated: 1540910977
-licenseType: Store
+guid: 32beb0d11a5326b46af5f61a69e31bdf
 NativeFormatImporter:
   externalObjects: {}
-  mainObjectFileID: 2100000
+  mainObjectFileID: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 132195
-  packageName: Meadow Environment - Dynamic Nature
-  packageVersion: 3.0.0
-  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Ground/Materials/M_Ground_Meadow_Wet_Soil_01.mat
-  uploadId: 751961

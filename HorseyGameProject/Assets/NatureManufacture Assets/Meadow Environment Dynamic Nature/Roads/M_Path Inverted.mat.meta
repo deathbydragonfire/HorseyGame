@@ -1,16 +1,8 @@
 fileFormatVersion: 2
-guid: d5d8cb548d7b928429a3b9aea4fd2055
+guid: f3cb23ec594201241ac9233ce560f4b8
 NativeFormatImporter:
   externalObjects: {}
-  mainObjectFileID: 2100000
+  mainObjectFileID: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 132195
-  packageName: Meadow Environment - Dynamic Nature
-  packageVersion: 3.0.0
-  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Roads/M_Path
-    Inverted.mat
-  uploadId: 751961
