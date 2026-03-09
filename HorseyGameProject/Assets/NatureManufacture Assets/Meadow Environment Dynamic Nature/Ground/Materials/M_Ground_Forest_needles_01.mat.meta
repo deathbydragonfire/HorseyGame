@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: ee44c0a5f16105643910013866bc7ee9
+timeCreated: 1540910977
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Ground/Materials/M_Ground_Forest_needles_01.mat
+  uploadId: 751961

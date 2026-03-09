@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 7378b758b74e2fe47aa82f7165e6f3e9
+timeCreated: 1538401649
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Tree
+    Stump/Prefabs/prefab_mushroom_01.prefab
+  uploadId: 751961

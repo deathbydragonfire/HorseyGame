@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 6c20d1b384fa05245acd4bf8b2a64257
+timeCreated: 1538404335
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Rocks/Cliffs/Prefabs
+    Blended Grass/prefab_cliff_base_04_grass.prefab
+  uploadId: 751961

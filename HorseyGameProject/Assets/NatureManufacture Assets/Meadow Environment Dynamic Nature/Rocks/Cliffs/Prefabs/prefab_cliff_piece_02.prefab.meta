@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 1fb75fa3626ca1044b5400acfc7f0dc7
+timeCreated: 1538402654
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Rocks/Cliffs/Prefabs/prefab_cliff_piece_02.prefab
+  uploadId: 751961

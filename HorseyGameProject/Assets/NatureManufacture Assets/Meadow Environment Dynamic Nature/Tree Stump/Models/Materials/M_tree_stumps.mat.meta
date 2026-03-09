@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 6b51cd29894628943b57c2d46b96e379
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Tree
+    Stump/Models/Materials/M_tree_stumps.mat
+  uploadId: 751961

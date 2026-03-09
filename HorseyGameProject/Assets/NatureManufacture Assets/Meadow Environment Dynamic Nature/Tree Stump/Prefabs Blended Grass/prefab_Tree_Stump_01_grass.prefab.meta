@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 4d275569d4bc4234d90a22c15e4d273b
+timeCreated: 1538400607
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Tree
+    Stump/Prefabs Blended Grass/prefab_Tree_Stump_01_grass.prefab
+  uploadId: 751961

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 3e60f7c9069a5ec4cbe1a7c4c4e6ef01
+timeCreated: 1538402647
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Rocks/Cliffs/Prefabs
+    Blended Leaves/prefab_cliff_overpaint_01_leaves.prefab
+  uploadId: 751961

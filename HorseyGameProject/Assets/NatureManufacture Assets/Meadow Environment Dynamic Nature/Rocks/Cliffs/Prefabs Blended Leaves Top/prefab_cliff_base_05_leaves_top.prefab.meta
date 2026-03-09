@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 6ab2c636f0e24a54bae6991d54d499e7
+timeCreated: 1538404464
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Rocks/Cliffs/Prefabs
+    Blended Leaves Top/prefab_cliff_base_05_leaves_top.prefab
+  uploadId: 751961

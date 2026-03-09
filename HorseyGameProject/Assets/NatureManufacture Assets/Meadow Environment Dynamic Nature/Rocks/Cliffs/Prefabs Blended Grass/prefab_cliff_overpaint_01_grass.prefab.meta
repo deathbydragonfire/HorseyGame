@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 01754e4e2ef733a43bb3f8dcd7dac157
+timeCreated: 1538402647
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Rocks/Cliffs/Prefabs
+    Blended Grass/prefab_cliff_overpaint_01_grass.prefab
+  uploadId: 751961

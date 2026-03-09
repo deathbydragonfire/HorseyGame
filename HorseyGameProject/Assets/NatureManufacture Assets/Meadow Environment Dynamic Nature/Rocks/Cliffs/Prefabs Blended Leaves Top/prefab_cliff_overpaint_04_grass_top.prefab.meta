@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 8ebd78e9009a48f4292dce689dbbf5d4
+timeCreated: 1538404181
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Rocks/Cliffs/Prefabs
+    Blended Leaves Top/prefab_cliff_overpaint_04_grass_top.prefab
+  uploadId: 751961

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 6264dc2fd33e4444194f23b0b6a0f50f
+timeCreated: 1543916679
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Tree
+    Stump/Prefabs/prefab_Trunks.prefab
+  uploadId: 751961

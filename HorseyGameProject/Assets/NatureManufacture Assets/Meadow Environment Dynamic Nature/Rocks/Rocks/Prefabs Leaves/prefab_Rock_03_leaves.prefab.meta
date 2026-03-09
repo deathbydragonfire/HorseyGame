@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: fa2f2012334858242a3aa5d3e6d972b2
+timeCreated: 1538401881
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Rocks/Rocks/Prefabs
+    Leaves/prefab_Rock_03_leaves.prefab
+  uploadId: 751961

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: db7e314ec30088b4dbc3b4506a5a09d3
+timeCreated: 1538401768
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Rocks/Rocks/Prefabs
+    Leaves Top/prefab_Rock_01_cut_top.prefab
+  uploadId: 751961

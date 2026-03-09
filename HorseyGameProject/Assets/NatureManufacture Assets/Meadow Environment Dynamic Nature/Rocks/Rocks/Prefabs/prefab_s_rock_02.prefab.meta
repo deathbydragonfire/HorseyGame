@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 65ee0b8c9bc498b4ea716a2a31805919
+timeCreated: 1538401419
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Rocks/Rocks/Prefabs/prefab_s_rock_02.prefab
+  uploadId: 751961

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 62530650acdfd304c84be6de37804974
+timeCreated: 1541013478
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Roads/Textures/New
+    Material.mat
+  uploadId: 751961

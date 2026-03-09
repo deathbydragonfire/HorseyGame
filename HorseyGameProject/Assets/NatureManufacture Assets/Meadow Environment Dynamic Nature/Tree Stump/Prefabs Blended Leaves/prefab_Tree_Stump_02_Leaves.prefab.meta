@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: bae1fa05dd2088f43983bc05d27d1672
+timeCreated: 1538400619
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Tree
+    Stump/Prefabs Blended Leaves/prefab_Tree_Stump_02_Leaves.prefab
+  uploadId: 751961

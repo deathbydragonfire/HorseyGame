@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: f0f51834fc8e43940836ac8aa8906d9c
+timeCreated: 1538404088
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Rocks/Rocks/Prefabs
+    Leaves Top/prefab_Rock_06_leaves_top.prefab
+  uploadId: 751961

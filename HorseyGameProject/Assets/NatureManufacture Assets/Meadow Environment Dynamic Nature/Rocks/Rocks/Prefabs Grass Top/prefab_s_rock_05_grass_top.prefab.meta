@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: d7e77f70e3d00c44990f8ea8613fdc65
+timeCreated: 1538401409
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 132195
+  packageName: Meadow Environment - Dynamic Nature
+  packageVersion: 3.0.0
+  assetPath: Assets/NatureManufacture Assets/Meadow Environment Dynamic Nature/Rocks/Rocks/Prefabs
+    Grass Top/prefab_s_rock_05_grass_top.prefab
+  uploadId: 751961
