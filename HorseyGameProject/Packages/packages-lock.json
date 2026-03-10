@@ -8,15 +8,6 @@
         "com.unity.nuget.newtonsoft-json": "3.2.1"
       }
     },
-    "com.jaspergman.com.jarynweinel.unityassistant": {
-      "version": "https://github.com/Jaryn2/Unity-Assistant.git",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {
-        "com.unity.test-framework": "1.6.0"
-      },
-      "hash": "1240be1c672694738a767ec743d5794558059d09"
-    },
     "com.unity.ai.navigation": {
       "version": "2.0.9",
       "depth": 0,
