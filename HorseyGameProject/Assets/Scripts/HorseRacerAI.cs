@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using MalbersAnimations.Controller;
 using MalbersAnimations;
@@ -5,71 +6,67 @@ using MalbersAnimations.PathCreation;
 
 namespace HorseyGame
 {
-    /// <summary>
-    /// Waypoint-based AI that drives an MAnimal along a race course.
-    /// Mario Kart-style: curvature-based speed (slow in turns, sprint on straights), optional rubber-banding.
-    /// Uses sequential waypoints to avoid wrong-section snapping on closed tracks.
-    /// Can be on the Opponent or on RaceManager; if on RaceManager, assign Racer to the Opponent.
-    /// </summary>
     [DefaultExecutionOrder(32000)]
     public class HorseRacerAI : MonoBehaviour
     {
-        [Header("Racer (required)")]
-        [Tooltip("The Opponent GameObject (the horse to drive). Assign this if HorseRacerAI is on RaceManager. If null, uses this GameObject or finds 'Opponent' by name.")]
+        [Header("Racer")]
         public GameObject racer;
+        public RacerProfile profile;
+        public int racerIndex;
 
         [Header("Path")]
-        [Tooltip("Spline path (Raceline). Use PathLink_Spline on Raceline, or assign Spline Container for direct use.")]
         public PathLink_Spline pathLink;
-        [Tooltip("If Path Link is not set, use this Spline Container directly.")]
         public UnityEngine.Splines.SplineContainer splineContainer;
 
         [Header("Waypoints")]
-        [Tooltip("Number of waypoints to sample from the spline.")]
         public int waypointCount = 300;
-        [Tooltip("Distance to current waypoint before advancing to next.")]
         public float waypointReachDist = 3f;
-        [Tooltip("How many waypoints ahead to steer toward.")]
         public int lookAheadWaypoints = 5;
 
         [Header("Jump zones")]
-        [Tooltip("Transforms marking jump/ramp areas (e.g. Frog Jump). AI will trigger jump when approaching.")]
         public Transform[] jumpZones;
-        [Tooltip("Distance to jump zone before triggering jump.")]
         public float jumpTriggerDistance = 12f;
 
         [Header("Speed (Mario Kart)")]
-        [Tooltip("Use curvature to slow in turns and sprint on straights.")]
         public bool useCurvatureSpeed = true;
-        [Tooltip("Angle change (degrees) above which we slow down and stop sprinting.")]
         public float sharpTurnAngle = 45f;
-        [Tooltip("Angle change (degrees) below which we sprint at full speed.")]
         public float straightAngle = 20f;
 
         [Header("Rubber-banding")]
-        [Tooltip("Scale AI speed when far behind/ahead of player (optional).")]
         public bool useRubberBanding = true;
-        [Tooltip("Max speed multiplier when AI is behind.")]
         [Range(1f, 1.5f)]
         public float rubberBandBoost = 1.2f;
-        [Tooltip("Min speed multiplier when AI is ahead.")]
         [Range(0.6f, 1f)]
         public float rubberBandSlow = 0.85f;
 
         [Header("Input disabling")]
-        [Tooltip("Disable MalbersInput on this GameObject when AI is active (recommended).")]
         public bool disableInputWhenActive = true;
 
         private const int JumpStateId = 2;
+        private const float AvoidanceCastDistance = 10f;
+        private const float OvertakeCheckInterval = 1f;
+        private const float OvertakeTimeout = 3f;
+        private const float LateralBlendSpeed = 3f;
+        private const float DraftingDotThreshold = 0.8f;
+        private const float OvertakeRayAngleDeg = 30f;
+        private const float OvertakeRayDistance = 5f;
 
         private MAnimal animal;
         private Vector3[] waypoints;
         private int currentWaypointIndex;
         private bool hasPath;
         private bool splineClosed;
-        private MalbersAnimations.MInput[] inputsToDisable;
+        private MInput[] inputsToDisable;
         private Transform racerRoot;
         private float lastJumpTime;
+
+        private Vector3 currentAvoidanceOffset;
+        private Vector3 currentOvertakeOffset;
+        private float lastOvertakeCheckTime;
+        private float overtakeStartTime;
+        private bool isOvertaking;
+        private int overtakeTargetIndex = -1;
+        private int animalLayerMask;
 
         public float CurrentProgress => waypoints != null && waypoints.Length > 0
             ? currentWaypointIndex / (float)waypoints.Length
@@ -78,8 +75,10 @@ namespace HorseyGame
 
         private void Awake()
         {
-            ResolveRacerRoot();
-            if (racerRoot == null) return;
+            if (racer != null)
+                racerRoot = racer.transform;
+            else
+                racerRoot = transform;
 
             var mount = racerRoot.GetComponentInChildren<MalbersAnimations.HAP.Mount>(true);
             if (mount != null && mount.Animal != null)
@@ -112,28 +111,23 @@ namespace HorseyGame
 
             if (disableInputWhenActive)
             {
-                inputsToDisable = racerRoot.GetComponentsInChildren<MalbersAnimations.MInput>(true);
+                inputsToDisable = racerRoot.GetComponentsInChildren<MInput>(true);
                 for (int i = 0; i < inputsToDisable.Length; i++)
                     inputsToDisable[i].enabled = false;
             }
             DisableAnimalInputSource();
+
+            animalLayerMask = 1 << LayerMask.NameToLayer("Animal");
+
+            ApplyProfile();
         }
 
-        private void ResolveRacerRoot()
+        private void ApplyProfile()
         {
-            if (racer != null)
-            {
-                racerRoot = racer.transform;
-                return;
-            }
-            var byName = GameObject.Find("Opponent");
-            if (byName != null)
-            {
-                racer = byName;
-                racerRoot = byName.transform;
-                return;
-            }
-            racerRoot = transform;
+            if (profile == null) return;
+            lookAheadWaypoints = profile.lookAheadWaypoints;
+            rubberBandBoost = profile.rubberBandBoostMax;
+            rubberBandSlow = profile.rubberBandSlowMin;
         }
 
         private void Start()
@@ -162,7 +156,7 @@ namespace HorseyGame
 
         private void SampleWaypoints()
         {
-            waypoints = new Vector3[waypointCount];
+            Vector3[] rawPoints = new Vector3[waypointCount];
 
             for (int i = 0; i < waypointCount; i++)
             {
@@ -171,14 +165,60 @@ namespace HorseyGame
                     t = 1f;
 
                 if (pathLink != null)
-                    waypoints[i] = pathLink.GetPointAtTime(t);
+                    rawPoints[i] = pathLink.GetPointAtTime(t);
                 else if (splineContainer != null)
-                    waypoints[i] = splineContainer.EvaluatePosition(t);
+                    rawPoints[i] = splineContainer.EvaluatePosition(t);
                 else
                 {
                     waypoints = null;
                     return;
                 }
+            }
+
+            waypoints = new Vector3[waypointCount];
+            float laneOffset = profile != null ? profile.preferredLane * profile.laneWidth : 0f;
+            float wander = profile != null ? profile.laneWander : 0f;
+
+            for (int i = 0; i < waypointCount; i++)
+            {
+                if (Mathf.Approximately(laneOffset, 0f) && Mathf.Approximately(wander, 0f))
+                {
+                    waypoints[i] = rawPoints[i];
+                    continue;
+                }
+
+                int prev = i - 1;
+                int next = i + 1;
+                if (splineClosed)
+                {
+                    prev = (prev + waypointCount) % waypointCount;
+                    next = next % waypointCount;
+                }
+                else
+                {
+                    prev = Mathf.Max(0, prev);
+                    next = Mathf.Min(waypointCount - 1, next);
+                }
+
+                Vector3 forward = rawPoints[next] - rawPoints[prev];
+                forward.y = 0f;
+                if (forward.sqrMagnitude < 0.001f)
+                {
+                    waypoints[i] = rawPoints[i];
+                    continue;
+                }
+                forward.Normalize();
+
+                Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
+
+                float wanderNoise = 0f;
+                if (wander > 0f)
+                {
+                    float noiseT = (float)i / waypointCount * 3f + racerIndex * 17.3f;
+                    wanderNoise = (Mathf.PerlinNoise(noiseT, racerIndex * 7.1f) - 0.5f) * 2f * wander * (profile != null ? profile.laneWidth : 4f);
+                }
+
+                waypoints[i] = rawPoints[i] + right * (laneOffset + wanderNoise);
             }
         }
 
@@ -214,7 +254,7 @@ namespace HorseyGame
             }
             else
             {
-                var list = racerRoot.GetComponentsInChildren<MalbersAnimations.MInput>(true);
+                var list = racerRoot.GetComponentsInChildren<MInput>(true);
                 for (int i = 0; i < list.Length; i++)
                     list[i].enabled = false;
             }
@@ -263,40 +303,7 @@ namespace HorseyGame
             Vector3 pos = animal.transform.position;
             Vector3 posFlat = new Vector3(pos.x, 0f, pos.z);
 
-            {
-                int safetyCounter = 0;
-                while (safetyCounter < waypoints.Length)
-                {
-                    Vector3 wpFlat = new Vector3(waypoints[currentWaypointIndex].x, 0f, waypoints[currentWaypointIndex].z);
-                    float distXZ = Vector3.Distance(posFlat, wpFlat);
-
-                    bool reached = distXZ <= waypointReachDist;
-
-                    if (!reached)
-                    {
-                        int nextWp = currentWaypointIndex + 1;
-                        if (nextWp >= waypoints.Length)
-                            nextWp = splineClosed ? 0 : currentWaypointIndex;
-
-                        Vector3 nextFlat = new Vector3(waypoints[nextWp].x, 0f, waypoints[nextWp].z);
-                        Vector3 splineForward = (nextFlat - wpFlat);
-                        Vector3 toHorse = (posFlat - wpFlat);
-
-                        if (splineForward.sqrMagnitude > 0.001f && toHorse.sqrMagnitude > 0.001f)
-                        {
-                            float dot = Vector3.Dot(splineForward.normalized, toHorse.normalized);
-                            reached = dot > 0.3f;
-                        }
-                    }
-
-                    if (!reached) break;
-
-                    currentWaypointIndex++;
-                    if (currentWaypointIndex >= waypoints.Length)
-                        currentWaypointIndex = splineClosed ? 0 : waypoints.Length - 1;
-                    safetyCounter++;
-                }
-            }
+            AdvanceWaypoints(posFlat);
 
             int effectiveLookAhead = lookAheadWaypoints;
             if (useCurvatureSpeed)
@@ -313,18 +320,27 @@ namespace HorseyGame
                 lookIdx = splineClosed ? lookIdx % waypoints.Length : waypoints.Length - 1;
 
             Vector3 targetPos = waypoints[lookIdx];
-            Vector3 dir = new Vector3(targetPos.x - pos.x, 0f, targetPos.z - pos.z);
-            if (dir.sqrMagnitude < 0.01f)
+            Vector3 splineDir = new Vector3(targetPos.x - pos.x, 0f, targetPos.z - pos.z);
+            if (splineDir.sqrMagnitude < 0.01f)
             {
                 int nextIdx = currentWaypointIndex + 1;
                 if (nextIdx >= waypoints.Length) nextIdx = splineClosed ? 0 : currentWaypointIndex;
-                dir = new Vector3(
+                splineDir = new Vector3(
                     waypoints[nextIdx].x - waypoints[currentWaypointIndex].x,
                     0f,
                     waypoints[nextIdx].z - waypoints[currentWaypointIndex].z);
-                if (dir.sqrMagnitude < 0.01f) dir = animal.transform.forward;
+                if (splineDir.sqrMagnitude < 0.01f) splineDir = animal.transform.forward;
             }
-            dir.Normalize();
+            splineDir.Normalize();
+
+            Vector3 avoidanceOffset = CalculateAvoidanceOffset(pos, splineDir);
+            Vector3 overtakeOffset = CalculateOvertakeOffset(pos, splineDir);
+            float draftingMult = CalculateDraftingBoost(pos, splineDir);
+
+            currentAvoidanceOffset = Vector3.Lerp(currentAvoidanceOffset, avoidanceOffset, Time.deltaTime * LateralBlendSpeed);
+            currentOvertakeOffset = Vector3.Lerp(currentOvertakeOffset, overtakeOffset, Time.deltaTime * LateralBlendSpeed);
+
+            Vector3 dir = (splineDir + currentAvoidanceOffset + currentOvertakeOffset).normalized;
 
             float moveMultiplier = 1f;
             bool sprint = true;
@@ -342,15 +358,14 @@ namespace HorseyGame
 
             if (useRubberBanding && RaceManager.Instance != null)
             {
-                float playerProg = RaceManager.Instance.GetPlayerProgress();
-                float aiProg = RaceManager.Instance.GetOpponentProgress();
-                float diff = playerProg - aiProg;
-                if (diff > 0.05f) moveMultiplier *= Mathf.Min(rubberBandBoost, 1f + diff * 2f);
-                else if (diff < -0.05f)
-                {
-                    moveMultiplier *= Mathf.Max(rubberBandSlow, 1f + diff * 2f);
-                }
+                float rubberMult = CalculateRubberBandMultiplier();
+                moveMultiplier *= rubberMult;
             }
+
+            moveMultiplier *= draftingMult;
+
+            if (profile != null)
+                moveMultiplier *= profile.baseSpeedMultiplier;
 
             if (jumpZones != null && jumpZones.Length > 0 && Time.time - lastJumpTime > 1.5f)
             {
@@ -369,6 +384,236 @@ namespace HorseyGame
 
             animal.SetSprint(sprint);
             animal.Move(dir * moveMultiplier);
+        }
+
+        private void AdvanceWaypoints(Vector3 posFlat)
+        {
+            int safetyCounter = 0;
+            while (safetyCounter < waypoints.Length)
+            {
+                Vector3 wpFlat = new Vector3(waypoints[currentWaypointIndex].x, 0f, waypoints[currentWaypointIndex].z);
+                float distXZ = Vector3.Distance(posFlat, wpFlat);
+
+                bool reached = distXZ <= waypointReachDist;
+
+                if (!reached)
+                {
+                    int nextWp = currentWaypointIndex + 1;
+                    if (nextWp >= waypoints.Length)
+                        nextWp = splineClosed ? 0 : currentWaypointIndex;
+
+                    Vector3 nextFlat = new Vector3(waypoints[nextWp].x, 0f, waypoints[nextWp].z);
+                    Vector3 splineForward = (nextFlat - wpFlat);
+                    Vector3 toHorse = (posFlat - wpFlat);
+
+                    if (splineForward.sqrMagnitude > 0.001f && toHorse.sqrMagnitude > 0.001f)
+                    {
+                        float dot = Vector3.Dot(splineForward.normalized, toHorse.normalized);
+                        reached = dot > 0.3f;
+                    }
+                }
+
+                if (!reached) break;
+
+                currentWaypointIndex++;
+                if (currentWaypointIndex >= waypoints.Length)
+                    currentWaypointIndex = splineClosed ? 0 : waypoints.Length - 1;
+                safetyCounter++;
+            }
+        }
+
+        private float CalculateRubberBandMultiplier()
+        {
+            var rm = RaceManager.Instance;
+            if (rm == null) return 1f;
+
+            int myPosition = rm.GetRacerPosition(racerIndex);
+            int totalRacers = rm.GetAllRacers().Count;
+            if (totalRacers <= 1) return 1f;
+
+            float myProgress = rm.GetRacerProgress(racerIndex);
+
+            float leaderProgress = float.MinValue;
+            float secondProgress = float.MinValue;
+            foreach (var r in rm.GetAllRacers())
+            {
+                if (r.progress > leaderProgress)
+                {
+                    secondProgress = leaderProgress;
+                    leaderProgress = r.progress;
+                }
+                else if (r.progress > secondProgress)
+                {
+                    secondProgress = r.progress;
+                }
+            }
+
+            if (myPosition == 1)
+            {
+                float gapToSecond = myProgress - secondProgress;
+                if (gapToSecond > 0.05f)
+                    return Mathf.Max(rubberBandSlow, 1f - gapToSecond * 0.5f);
+            }
+            else if (myPosition == totalRacers)
+            {
+                float gapFromLeader = leaderProgress - myProgress;
+                if (gapFromLeader > 0.05f)
+                    return Mathf.Min(rubberBandBoost, 1f + gapFromLeader * 2f);
+            }
+            else
+            {
+                float gapFromLeader = leaderProgress - myProgress;
+                if (gapFromLeader > 0.05f)
+                    return Mathf.Min(rubberBandBoost, 1f + gapFromLeader * 1f);
+            }
+
+            return 1f;
+        }
+
+        private Vector3 CalculateAvoidanceOffset(Vector3 position, Vector3 forward)
+        {
+            if (profile == null) return Vector3.zero;
+
+            if (Physics.SphereCast(position, profile.avoidanceRadius, forward, out RaycastHit hit, AvoidanceCastDistance, animalLayerMask))
+            {
+                if (hit.collider.transform.root == racerRoot) return Vector3.zero;
+
+                Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
+                Vector3 toObstacle = (hit.point - position).normalized;
+                float side = Vector3.Dot(toObstacle, right);
+                float steerSign = side >= 0f ? -1f : 1f;
+                float proximity = 1f - (hit.distance / AvoidanceCastDistance);
+                return right * steerSign * profile.avoidanceSteering * proximity;
+            }
+
+            return Vector3.zero;
+        }
+
+        private Vector3 CalculateOvertakeOffset(Vector3 position, Vector3 forward)
+        {
+            if (profile == null || RaceManager.Instance == null) return Vector3.zero;
+
+            if (isOvertaking)
+            {
+                if (Time.time - overtakeStartTime > OvertakeTimeout)
+                {
+                    isOvertaking = false;
+                    overtakeTargetIndex = -1;
+                    return Vector3.zero;
+                }
+
+                var targetData = FindRacerByIndex(overtakeTargetIndex);
+                if (targetData == null || targetData.root == null)
+                {
+                    isOvertaking = false;
+                    overtakeTargetIndex = -1;
+                    return Vector3.zero;
+                }
+
+                float distToTarget = Vector3.Distance(position, targetData.root.transform.position);
+                if (distToTarget > profile.overtakeDistance * 1.5f)
+                {
+                    isOvertaking = false;
+                    overtakeTargetIndex = -1;
+                    return Vector3.zero;
+                }
+
+                float myProg = RaceManager.Instance.GetRacerProgress(racerIndex);
+                float theirProg = RaceManager.Instance.GetRacerProgress(overtakeTargetIndex);
+                if (myProg > theirProg + 0.02f)
+                {
+                    isOvertaking = false;
+                    overtakeTargetIndex = -1;
+                    return Vector3.zero;
+                }
+
+                Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
+                return currentOvertakeOffset.normalized * profile.lateralOffsetStrength;
+            }
+
+            if (Time.time - lastOvertakeCheckTime < OvertakeCheckInterval) return Vector3.zero;
+            lastOvertakeCheckTime = Time.time;
+
+            if (Random.value > profile.aggressiveness) return Vector3.zero;
+
+            List<RaceManager.RacerData> allRacers = RaceManager.Instance.GetAllRacers();
+            RaceManager.RacerData closestAhead = null;
+            float closestDist = float.MaxValue;
+
+            foreach (var r in allRacers)
+            {
+                if (r.racerIndex == racerIndex || r.root == null) continue;
+                float dist = Vector3.Distance(position, r.root.transform.position);
+                if (dist > profile.overtakeDistance) continue;
+
+                Vector3 toOther = (r.root.transform.position - position).normalized;
+                float dot = Vector3.Dot(forward, toOther);
+                if (dot <= 0f) continue;
+
+                if (dist < closestDist)
+                {
+                    closestDist = dist;
+                    closestAhead = r;
+                }
+            }
+
+            if (closestAhead == null) return Vector3.zero;
+
+            Vector3 rightDir = Vector3.Cross(Vector3.up, forward).normalized;
+            Vector3 leftRayDir = Quaternion.AngleAxis(-OvertakeRayAngleDeg, Vector3.up) * forward;
+            Vector3 rightRayDir = Quaternion.AngleAxis(OvertakeRayAngleDeg, Vector3.up) * forward;
+
+            bool leftBlocked = Physics.Raycast(position, leftRayDir, OvertakeRayDistance, animalLayerMask);
+            bool rightBlocked = Physics.Raycast(position, rightRayDir, OvertakeRayDistance, animalLayerMask);
+
+            if (leftBlocked && rightBlocked) return Vector3.zero;
+
+            float steerSign;
+            if (!leftBlocked && !rightBlocked)
+                steerSign = Random.value > 0.5f ? 1f : -1f;
+            else
+                steerSign = leftBlocked ? 1f : -1f;
+
+            isOvertaking = true;
+            overtakeStartTime = Time.time;
+            overtakeTargetIndex = closestAhead.racerIndex;
+            return rightDir * steerSign * profile.lateralOffsetStrength;
+        }
+
+        private float CalculateDraftingBoost(Vector3 position, Vector3 forward)
+        {
+            if (profile == null || RaceManager.Instance == null) return 1f;
+
+            List<RaceManager.RacerData> allRacers = RaceManager.Instance.GetAllRacers();
+            foreach (var r in allRacers)
+            {
+                if (r.racerIndex == racerIndex || r.root == null || r.animal == null) continue;
+
+                Vector3 otherPos = r.root.transform.position;
+                float dist = Vector3.Distance(position, otherPos);
+                if (dist > profile.draftingDistance) continue;
+
+                Vector3 toOther = (otherPos - position).normalized;
+                float dotForward = Vector3.Dot(forward, toOther);
+                if (dotForward <= 0f) continue;
+
+                Vector3 otherForward = r.animal.transform.forward;
+                float alignment = Vector3.Dot(forward, otherForward);
+                if (alignment > DraftingDotThreshold)
+                    return profile.draftingSpeedBonus;
+            }
+
+            return 1f;
+        }
+
+        private RaceManager.RacerData FindRacerByIndex(int index)
+        {
+            if (RaceManager.Instance == null) return null;
+            foreach (var r in RaceManager.Instance.GetAllRacers())
+            {
+                if (r.racerIndex == index) return r;
+            }
+            return null;
         }
 
         private float GetCurvatureAngleAtWaypoint(int idx)
@@ -397,6 +642,7 @@ namespace HorseyGame
             return Vector3.Angle(v1, v2);
         }
 
+        /// <summary>Sets the current progress along the waypoint path.</summary>
         public void SetProgress(float normalizedT)
         {
             if (waypoints == null || waypoints.Length == 0) return;
@@ -405,9 +651,14 @@ namespace HorseyGame
                 0, waypoints.Length - 1);
         }
 
+        /// <summary>Resets waypoint progress to the start.</summary>
         public void ResetToStart()
         {
             currentWaypointIndex = 0;
+            isOvertaking = false;
+            overtakeTargetIndex = -1;
+            currentAvoidanceOffset = Vector3.zero;
+            currentOvertakeOffset = Vector3.zero;
         }
     }
 }

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f2dbd8849078c647be9d0b609a16f20, type: 3}
+  m_Name: Aggressive
+  m_EditorClassIdentifier: Assembly-CSharp::HorseyGame.RacerProfile
+  displayName: Aggressive
+  baseSpeedMultiplier: 1.05
+  aggressiveness: 0.9
+  preferredLane: -0.8
+  laneWidth: 4
+  laneWander: 0.15
+  rubberBandBoostMax: 1.4
+  rubberBandSlowMin: 0.8
+  overtakeDistance: 18
+  lateralOffsetStrength: 4
+  draftingDistance: 10
+  draftingSpeedBonus: 1.03
+  avoidanceRadius: 1
+  avoidanceSteering: 1.5
+  lookAheadWaypoints: 6

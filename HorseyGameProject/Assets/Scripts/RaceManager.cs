@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using MalbersAnimations.Controller;
@@ -6,45 +7,41 @@ using MalbersAnimations.HAP;
 
 namespace HorseyGame
 {
-    /// <summary>
-    /// Tracks laps, race state, and progress for Player and Opponent. Used by FinishLineTrigger and HorseRacerAI (rubber-banding).
-    /// Also blocks all keyboard/input on the Opponent every frame so only HorseRacerAI drives it.
-    /// Assign Player and Opponent (root GameObjects with RacerId).
-    /// </summary>
     [DefaultExecutionOrder(-100)]
     public class RaceManager : MonoBehaviour
     {
         public static RaceManager Instance { get; private set; }
 
         [Header("Racers")]
-        [Tooltip("Player root (has RacerId = Player).")]
         public GameObject player;
-        [Tooltip("Opponent root (has RacerId = Opponent, HorseRacerAI).")]
-        public GameObject opponent;
 
         [Header("Race")]
-        [Tooltip("Number of laps to complete to win.")]
         public int lapsToWin = 1;
-        [Tooltip("Path for progress (optional). If set, progress = lap + spline t.")]
         public MalbersAnimations.PathCreation.PathLink_Spline pathForProgress;
 
         [Header("Events")]
         public UnityEvent<int> OnRacerLap;
         public UnityEvent<int> OnRaceFinished;
 
-        private int playerLaps;
-        private int opponentLaps;
         private bool raceFinished;
-        private RacerId playerRacerId;
-        private RacerId opponentRacerId;
-        private HorseRacerAI opponentAI;
-        private MalbersAnimations.Controller.MAnimal playerAnimal;
-        private MalbersAnimations.Controller.MAnimal opponentAnimal;
+        private MAnimal playerAnimal;
+        private readonly List<RacerData> racers = new List<RacerData>();
+        private readonly Dictionary<int, float> lastLapTime = new Dictionary<int, float>();
 
-        public int PlayerLaps => playerLaps;
-        public int OpponentLaps => opponentLaps;
+        private const float LapCooldown = 5f;
+
         public bool RaceFinished => raceFinished;
         public int LapsToWin => lapsToWin;
+
+        public class RacerData
+        {
+            public GameObject root;
+            public MAnimal animal;
+            public HorseRacerAI ai;
+            public int racerIndex;
+            public int laps;
+            public float progress;
+        }
 
         private void Awake()
         {
@@ -56,22 +53,38 @@ namespace HorseyGame
             Instance = this;
 
             if (player == null) player = GameObject.Find("Player");
-            if (opponent == null) opponent = GameObject.Find("Opponent");
-
-            if (player != null) playerRacerId = player.GetComponent<RacerId>();
-            if (opponent != null)
+            if (player != null)
             {
-                opponentRacerId = opponent.GetComponent<RacerId>();
-                opponentAI = opponent.GetComponentInChildren<HorseRacerAI>(true);
-                opponentAnimal = opponent.GetComponentInChildren<MAnimal>(true);
+                playerAnimal = player.GetComponentInChildren<MAnimal>(true);
+                var playerData = new RacerData
+                {
+                    root = player,
+                    animal = playerAnimal,
+                    ai = null,
+                    racerIndex = 0,
+                    laps = 0,
+                    progress = 0f
+                };
+                racers.Add(playerData);
             }
-            if (player != null) playerAnimal = player.GetComponentInChildren<MAnimal>(true);
         }
 
         private void Start()
         {
+            DiscoverSceneRacers();
             EnsureCameraFollowsPlayer();
             StartCoroutine(EnsureCameraFollowsPlayerNextFrame());
+        }
+
+        private void DiscoverSceneRacers()
+        {
+            var allRacerIds = FindObjectsOfType<RacerId>(true);
+            foreach (var rid in allRacerIds)
+            {
+                if (rid.IsPlayer) continue;
+                if (FindRacer(rid.Id) != null) continue;
+                RegisterRacer(rid.gameObject);
+            }
         }
 
         private System.Collections.IEnumerator EnsureCameraFollowsPlayerNextFrame()
@@ -80,82 +93,142 @@ namespace HorseyGame
             EnsureCameraFollowsPlayer();
         }
 
+        /// <summary>Registers an AI racer spawned at runtime.</summary>
+        public void RegisterRacer(GameObject racerRoot)
+        {
+            if (racerRoot == null) return;
+
+            var racerId = racerRoot.GetComponent<RacerId>();
+            var mount = racerRoot.GetComponentInChildren<Mount>(true);
+            MAnimal animal = null;
+            if (mount != null && mount.Animal != null)
+                animal = mount.Animal;
+            else
+                animal = racerRoot.GetComponentInChildren<MAnimal>(true);
+
+            var ai = racerRoot.GetComponentInChildren<HorseRacerAI>(true);
+
+            var data = new RacerData
+            {
+                root = racerRoot,
+                animal = animal,
+                ai = ai,
+                racerIndex = racerId != null ? racerId.Id : racers.Count,
+                laps = 0,
+                progress = 0f
+            };
+            racers.Add(data);
+        }
+
         private void EnsureCameraFollowsPlayer()
         {
-            if (player == null || opponent == null) return;
-
-            DisableOpponentTransformHooks();
-
-            ResetPlayerTransformHooks();
+            if (player == null) return;
 
             Transform playerAnimalTransform = playerAnimal != null ? playerAnimal.transform : player.transform;
 
-            var freeLookCams = FindObjectsOfType<MalbersAnimations.MFreeLookCamera>();
+            foreach (var racer in racers)
+            {
+                if (racer.racerIndex == 0) continue;
+                if (racer.root == null) continue;
+                DisableTransformHooksOn(racer.root);
+            }
+
+            ResetPlayerTransformHooks();
+
+            var freeLookCams = FindObjectsOfType<MFreeLookCamera>();
             foreach (var cam in freeLookCams)
             {
                 Transform target = cam.Target;
-                if (target != null && (target == opponent.transform || target.IsChildOf(opponent.transform)))
-                    cam.Target_Set(playerAnimalTransform);
-                else if (cam.Target == null)
+                bool isOnAI = false;
+                foreach (var racer in racers)
+                {
+                    if (racer.racerIndex == 0 || racer.root == null) continue;
+                    if (target != null && (target == racer.root.transform || target.IsChildOf(racer.root.transform)))
+                    {
+                        isOnAI = true;
+                        break;
+                    }
+                }
+                if (isOnAI || cam.Target == null)
                     cam.Target_Set(playerAnimalTransform);
             }
 
-            var cinemachineCams = FindObjectsOfType<MalbersAnimations.ThirdPersonFollowTarget>();
+            var cinemachineCams = FindObjectsOfType<ThirdPersonFollowTarget>();
             foreach (var cam in cinemachineCams)
             {
-                bool isOnOpponent = cam.transform.IsChildOf(opponent.transform) || cam.transform == opponent.transform;
-                if (isOnOpponent)
+                foreach (var racer in racers)
                 {
-                    cam.enabled = false;
-                    if (cam.gameObject.TryGetComponent<Unity.Cinemachine.CinemachineCamera>(out var vcam))
-                        vcam.enabled = false;
+                    if (racer.racerIndex == 0 || racer.root == null) continue;
+                    bool isOnRacer = cam.transform.IsChildOf(racer.root.transform) || cam.transform == racer.root.transform;
+                    if (isOnRacer)
+                    {
+                        cam.enabled = false;
+                        if (cam.gameObject.TryGetComponent<Unity.Cinemachine.CinemachineCamera>(out var vcam))
+                            vcam.enabled = false;
+                    }
                 }
             }
         }
 
-        private void DisableOpponentTransformHooks()
+        private void DisableTransformHooksOn(GameObject target)
         {
-            var allHooks = opponent.GetComponentsInChildren<MalbersAnimations.Scriptables.TransformHook>(true);
-            foreach (var hook in allHooks)
-            {
+            var hooks = target.GetComponentsInChildren<MalbersAnimations.Scriptables.TransformHook>(true);
+            foreach (var hook in hooks)
                 hook.enabled = false;
-            }
         }
 
         private void ResetPlayerTransformHooks()
         {
+            if (player == null) return;
             var playerHooks = player.GetComponentsInChildren<MalbersAnimations.Scriptables.TransformHook>(true);
             foreach (var hook in playerHooks)
-            {
                 hook.UpdateHook();
-            }
         }
 
         private void Update()
         {
-            BlockOpponentInput();
+            BlockAIInput();
+            UpdateProgress();
         }
 
-        private void BlockOpponentInput()
+        private void BlockAIInput()
         {
             if (raceFinished) return;
-            if (opponent == null) opponent = GameObject.Find("Opponent");
-            if (opponent == null) return;
-            Transform root = opponent.transform;
-            var animal = opponentAnimal != null ? opponentAnimal : root.GetComponentInChildren<MAnimal>(true);
-            if (animal != null)
+
+            foreach (var racer in racers)
             {
-                if (animal.InputSource != null)
-                    animal.InputSource.Enable(false);
-                var mount = animal.GetComponentInParent<Mount>();
-                if (mount != null)
-                    mount.EnableInput(false);
+                if (racer.racerIndex == 0 || racer.root == null) continue;
+
+                var animal = racer.animal;
+                if (animal != null)
+                {
+                    if (animal.InputSource != null)
+                        animal.InputSource.Enable(false);
+                    var mount = animal.GetComponentInParent<Mount>();
+                    if (mount != null)
+                        mount.EnableInput(false);
+                }
+
+                var inputs = racer.root.GetComponentsInChildren<MInput>(true);
+                for (int i = 0; i < inputs.Length; i++)
+                {
+                    if (inputs[i] != null && inputs[i].enabled)
+                        inputs[i].enabled = false;
+                }
             }
-            var inputs = root.GetComponentsInChildren<MInput>(true);
-            for (int i = 0; i < inputs.Length; i++)
+        }
+
+        private void UpdateProgress()
+        {
+            foreach (var racer in racers)
             {
-                if (inputs[i] != null && inputs[i].enabled)
-                    inputs[i].enabled = false;
+                if (racer.root == null) continue;
+                float t;
+                if (racer.ai != null)
+                    t = racer.ai.CurrentProgress;
+                else
+                    t = GetSplineT(racer.animal);
+                racer.progress = racer.laps + t;
             }
         }
 
@@ -165,48 +238,75 @@ namespace HorseyGame
                 Instance = null;
         }
 
+        /// <summary>Called by FinishLineTrigger when a racer crosses the line.</summary>
         public void OnRacerCrossedFinish(int racerId)
         {
             if (raceFinished) return;
 
-            if (racerId == 0)
-            {
-                playerLaps++;
-                OnRacerLap?.Invoke(0);
-                if (playerLaps >= lapsToWin)
-                    FinishRace(0);
-            }
-            else if (racerId == 1)
-            {
-                opponentLaps++;
-                OnRacerLap?.Invoke(1);
-                if (opponentLaps >= lapsToWin)
-                    FinishRace(1);
-            }
+            RacerData data = FindRacer(racerId);
+            if (data == null) return;
+
+            if (lastLapTime.TryGetValue(racerId, out float lastTime) && Time.time - lastTime < LapCooldown)
+                return;
+
+            lastLapTime[racerId] = Time.time;
+            data.laps++;
+            OnRacerLap?.Invoke(racerId);
+
+            if (data.laps >= lapsToWin)
+                FinishRace(racerId);
         }
 
         private void FinishRace(int winnerRacerId)
         {
             raceFinished = true;
-            if (opponentAI != null) opponentAI.enabled = false;
-            if (opponentAnimal != null) opponentAnimal.StopMoving();
+
+            foreach (var racer in racers)
+            {
+                if (racer.ai != null) racer.ai.enabled = false;
+                if (racer.animal != null && racer.racerIndex != 0)
+                    racer.animal.StopMoving();
+            }
+
             OnRaceFinished?.Invoke(winnerRacerId);
         }
 
-        /// <summary>Progress for rubber-banding: lap + normalized spline t (0..1). Higher = ahead. </summary>
-        public float GetPlayerProgress()
+        /// <summary>Returns the race position (1st, 2nd, etc.) for a given racer index.</summary>
+        public int GetRacerPosition(int racerIndex)
         {
-            float t = GetSplineT(playerAnimal);
-            return playerLaps + t;
+            RacerData target = FindRacer(racerIndex);
+            if (target == null) return racers.Count;
+
+            int position = 1;
+            foreach (var racer in racers)
+            {
+                if (racer.racerIndex == racerIndex) continue;
+                if (racer.progress > target.progress)
+                    position++;
+            }
+            return position;
         }
 
-        /// <summary>Progress for rubber-banding: lap + normalized spline t (0..1). Higher = ahead.</summary>
-        public float GetOpponentProgress()
+        /// <summary>Returns the progress (laps + spline t) for a given racer.</summary>
+        public float GetRacerProgress(int racerIndex)
         {
-            if (opponentAI != null)
-                return opponentLaps + opponentAI.CurrentProgress;
-            float t = GetSplineT(opponentAnimal);
-            return opponentLaps + t;
+            RacerData data = FindRacer(racerIndex);
+            return data != null ? data.progress : 0f;
+        }
+
+        /// <summary>Provides the full racer list for AI queries.</summary>
+        public List<RacerData> GetAllRacers()
+        {
+            return racers;
+        }
+
+        public int PlayerLaps
+        {
+            get
+            {
+                RacerData p = FindRacer(0);
+                return p != null ? p.laps : 0;
+            }
         }
 
         private float GetSplineT(MAnimal animal)
@@ -215,16 +315,31 @@ namespace HorseyGame
             return pathForProgress.GetClosestTimeOnPath(animal.transform.position);
         }
 
+        /// <summary>Resets all racers for a new race.</summary>
         public void ResetRace()
         {
-            playerLaps = 0;
-            opponentLaps = 0;
             raceFinished = false;
-            if (opponentAI != null)
+            lastLapTime.Clear();
+            foreach (var racer in racers)
             {
-                opponentAI.ResetToStart();
-                opponentAI.enabled = true;
+                racer.laps = 0;
+                racer.progress = 0f;
+                if (racer.ai != null)
+                {
+                    racer.ai.ResetToStart();
+                    racer.ai.enabled = true;
+                }
             }
+        }
+
+        private RacerData FindRacer(int racerIndex)
+        {
+            foreach (var racer in racers)
+            {
+                if (racer.racerIndex == racerIndex)
+                    return racer;
+            }
+            return null;
         }
     }
 }
