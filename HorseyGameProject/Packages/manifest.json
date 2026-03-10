@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.jaspergman.com.jarynweinel.unityassistant": "https://github.com/Jaryn2/Unity-Assistant.git",
     "com.unity.ai.navigation": "2.0.9",
     "com.unity.cinemachine": "3.1.5",
     "com.unity.collab-proxy": "2.11.2",
