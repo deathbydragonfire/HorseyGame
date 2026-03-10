@@ -38,6 +38,8 @@ MonoBehaviour:
   Priority: 5
   resetInputOnFailed: 0
   ResetLastState: 0
+  RemoveForceOnEnter: 0
+  ForceDamping: 0
   General:
     modify: 2303
     RootMotion: 1
@@ -167,11 +169,11 @@ MonoBehaviour:
     UseConstant: 1
     ConstantValue: 0
     Variable: {fileID: 0}
+  JumpPressedLerp: 5
   ForwardPressed:
     UseConstant: 1
     ConstantValue: 0
-    Variable: {fileID: 0}
-  JumpPressedLerp: 5
+    Variable: {fileID: 11400000, guid: a99385a0d1edf594daaa287707e8abfe, type: 2}
   AirControl:
     UseConstant: 1
     ConstantValue: 1
