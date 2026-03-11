@@ -9,7 +9,7 @@ TerrainLayer:
   m_Name: layer_T_ground_meadow_soil_01_3
   m_DiffuseTexture: {fileID: 2800000, guid: 94871f50a83a8ca408fffba8a253e001, type: 3}
   m_NormalMapTexture: {fileID: 2800000, guid: 1cf1ffe21cb52584f8be030a199a1dc0, type: 3}
-  m_MaskMapTexture: {fileID: 2800000, guid: 8f86f3c60b9f9014abdd4088d9b3d59c, type: 3}
+  m_MaskMapTexture: {fileID: 2800000, guid: 418a60365e219194ca343e7e2286310d, type: 3}
   m_TileSize: {x: 4, y: 4}
   m_TileOffset: {x: 0, y: 0}
   m_Specular: {r: 0, g: 0, b: 0, a: 0}
