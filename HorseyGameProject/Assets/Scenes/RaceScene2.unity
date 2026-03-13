@@ -3233,7 +3233,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2811502762120779143, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       propertyPath: m_RotationOffsets.Array.data[0].x
-      value: -47.282665
+      value: -47.282658
       objectReference: {fileID: 0}
     - target: {fileID: 2811502762120779143, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       propertyPath: m_RotationOffsets.Array.data[0].y
@@ -3526,6 +3526,10 @@ PrefabInstance:
     - target: {fileID: 3243882745497382646, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       propertyPath: racerIndex
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3243882745497382646, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
+      propertyPath: rubberBandBoost
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 3243882745497382646, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       propertyPath: splineContainer
@@ -4479,6 +4483,8 @@ GameObject:
   m_Component:
   - component: {fileID: 515653131}
   - component: {fileID: 515653132}
+  - component: {fileID: 515653133}
+  - component: {fileID: 515653134}
   m_Layer: 0
   m_Name: RaceManager
   m_TagString: Untagged
@@ -4550,6 +4556,31 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &515653133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 515653130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b08a25cac1d50f47a41f42a9a062c80, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HorseyGame.PlayerAlwaysSprint
+  player: {fileID: 177870358}
+--- !u!114 &515653134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 515653130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbb9a2618f3bed743b61059a51d6a411, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HorseyGame.QuitGame
 --- !u!4 &519179046 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 4a7728ac030e37d49afd03c35007e32b, type: 3}
@@ -5248,7 +5279,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2811502762120779143, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       propertyPath: m_RotationOffsets.Array.data[0].x
-      value: -47.282665
+      value: -47.282658
       objectReference: {fileID: 0}
     - target: {fileID: 2811502762120779143, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       propertyPath: m_RotationOffsets.Array.data[0].y
@@ -5541,6 +5572,10 @@ PrefabInstance:
     - target: {fileID: 3243882745497382646, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       propertyPath: racerIndex
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3243882745497382646, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
+      propertyPath: rubberBandBoost
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 3243882745497382646, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       propertyPath: splineContainer
@@ -7561,7 +7596,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2811502762120779143, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       propertyPath: m_RotationOffsets.Array.data[0].x
-      value: -47.282665
+      value: -47.282658
       objectReference: {fileID: 0}
     - target: {fileID: 2811502762120779143, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       propertyPath: m_RotationOffsets.Array.data[0].y
@@ -7854,6 +7889,10 @@ PrefabInstance:
     - target: {fileID: 3243882745497382646, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       propertyPath: racerIndex
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3243882745497382646, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
+      propertyPath: rubberBandBoost
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 3243882745497382646, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       propertyPath: splineContainer
@@ -11979,7 +12018,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2811502762120779143, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       propertyPath: m_RotationOffsets.Array.data[0].x
-      value: -47.282665
+      value: -47.282658
       objectReference: {fileID: 0}
     - target: {fileID: 2811502762120779143, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       propertyPath: m_RotationOffsets.Array.data[0].y
@@ -12264,6 +12303,10 @@ PrefabInstance:
     - target: {fileID: 3243882745497382646, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       propertyPath: racerIndex
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3243882745497382646, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
+      propertyPath: rubberBandBoost
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 3243882745497382646, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       propertyPath: splineContainer
@@ -15853,6 +15896,22 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 274424498879036121, guid: a674ce74fe99da94ca4a6c3c03c75652, type: 3}
+      propertyPath: CameraDistance
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 274424498879036121, guid: a674ce74fe99da94ca4a6c3c03c75652, type: 3}
+      propertyPath: ShoulderOffset.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 274424498879036121, guid: a674ce74fe99da94ca4a6c3c03c75652, type: 3}
+      propertyPath: ShoulderOffset.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 274424498879036121, guid: a674ce74fe99da94ca4a6c3c03c75652, type: 3}
+      propertyPath: ShoulderOffset.z
+      value: -2
+      objectReference: {fileID: 0}
     - target: {fileID: 283653077322393043, guid: a674ce74fe99da94ca4a6c3c03c75652, type: 3}
       propertyPath: m_Layer
       value: 6
@@ -15923,7 +15982,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1012919608345952157, guid: a674ce74fe99da94ca4a6c3c03c75652, type: 3}
       propertyPath: m_RotationOffsets.Array.data[0].x
-      value: -47.282665
+      value: -47.282658
       objectReference: {fileID: 0}
     - target: {fileID: 1012919608345952157, guid: a674ce74fe99da94ca4a6c3c03c75652, type: 3}
       propertyPath: m_RotationOffsets.Array.data[0].y
