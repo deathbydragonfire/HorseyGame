@@ -283,6 +283,7 @@ namespace HorseyGame
         private void Update()
         {
             if (!hasPath || animal == null || !enabled) return;
+            if (RaceManager.Instance == null || !RaceManager.Instance.RaceStarted) return;
             if (waypoints == null || waypoints.Length == 0)
             {
                 SampleWaypoints();

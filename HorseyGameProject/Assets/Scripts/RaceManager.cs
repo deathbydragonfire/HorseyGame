@@ -19,18 +19,25 @@ namespace HorseyGame
         public int lapsToWin = 1;
         public MalbersAnimations.PathCreation.PathLink_Spline pathForProgress;
 
+        [Header("UI")]
+        public RaceUI raceUI;
+
         [Header("Events")]
         public UnityEvent<int> OnRacerLap;
         public UnityEvent<int> OnRaceFinished;
+        public UnityEvent OnRaceStarted;
 
         private bool raceFinished;
+        private bool raceStarted;
         private MAnimal playerAnimal;
+        private MAnimal[] playerAnimals;
         private readonly List<RacerData> racers = new List<RacerData>();
         private readonly Dictionary<int, float> lastLapTime = new Dictionary<int, float>();
 
         private const float LapCooldown = 5f;
 
         public bool RaceFinished => raceFinished;
+        public bool RaceStarted => raceStarted;
         public int LapsToWin => lapsToWin;
 
         public class RacerData
@@ -55,7 +62,11 @@ namespace HorseyGame
             if (player == null) player = GameObject.Find("Player");
             if (player != null)
             {
-                playerAnimal = player.GetComponentInChildren<MAnimal>(true);
+                playerAnimals = player.GetComponentsInChildren<MAnimal>(true);
+                playerAnimal = System.Array.Find(playerAnimals, a => a.gameObject != player && a.gameObject.CompareTag("Animal") && a.gameObject.name.ToLower().Contains("horse"));
+                if (playerAnimal == null && playerAnimals.Length > 0)
+                    playerAnimal = playerAnimals[playerAnimals.Length - 1];
+
                 var playerData = new RacerData
                 {
                     root = player,
@@ -73,7 +84,19 @@ namespace HorseyGame
         {
             DiscoverSceneRacers();
             EnsureCameraFollowsPlayer();
-            StartCoroutine(EnsureCameraFollowsPlayerNextFrame());
+            StartCoroutine(StartAfterOneFrame());
+        }
+
+        private System.Collections.IEnumerator StartAfterOneFrame()
+        {
+            yield return null;
+            EnsureCameraFollowsPlayer();
+            FreezeAllRacers();
+
+            if (raceUI != null)
+                raceUI.StartCountdown();
+            else
+                StartRace();
         }
 
         private void DiscoverSceneRacers()
@@ -87,10 +110,44 @@ namespace HorseyGame
             }
         }
 
-        private System.Collections.IEnumerator EnsureCameraFollowsPlayerNextFrame()
+        private void FreezeAllRacers()
         {
-            yield return null;
-            EnsureCameraFollowsPlayer();
+            SetAllPlayerAnimalsLocked(true);
+
+            foreach (var racer in racers)
+            {
+                if (racer.animal == null) continue;
+                racer.animal.LockMovement = true;
+                racer.animal.LockInput = true;
+            }
+        }
+
+        /// <summary>Called by RaceUI when the countdown finishes to begin the race.</summary>
+        public void StartRace()
+        {
+            raceStarted = true;
+
+            SetAllPlayerAnimalsLocked(false);
+
+            foreach (var racer in racers)
+            {
+                if (racer.animal == null) continue;
+                racer.animal.LockMovement = false;
+                racer.animal.LockInput = false;
+            }
+
+            OnRaceStarted?.Invoke();
+        }
+
+        private void SetAllPlayerAnimalsLocked(bool locked)
+        {
+            if (playerAnimals == null) return;
+            foreach (var a in playerAnimals)
+            {
+                if (a == null) continue;
+                a.LockMovement = locked;
+                a.LockInput = locked;
+            }
         }
 
         /// <summary>Registers an AI racer spawned at runtime.</summary>
@@ -187,35 +244,7 @@ namespace HorseyGame
 
         private void Update()
         {
-            BlockAIInput();
             UpdateProgress();
-        }
-
-        private void BlockAIInput()
-        {
-            if (raceFinished) return;
-
-            foreach (var racer in racers)
-            {
-                if (racer.racerIndex == 0 || racer.root == null) continue;
-
-                var animal = racer.animal;
-                if (animal != null)
-                {
-                    if (animal.InputSource != null)
-                        animal.InputSource.Enable(false);
-                    var mount = animal.GetComponentInParent<Mount>();
-                    if (mount != null)
-                        mount.EnableInput(false);
-                }
-
-                var inputs = racer.root.GetComponentsInChildren<MInput>(true);
-                for (int i = 0; i < inputs.Length; i++)
-                {
-                    if (inputs[i] != null && inputs[i].enabled)
-                        inputs[i].enabled = false;
-                }
-            }
         }
 
         private void UpdateProgress()
@@ -238,10 +267,11 @@ namespace HorseyGame
                 Instance = null;
         }
 
-        /// <summary>Called by FinishLineTrigger when a racer crosses the line.</summary>
+        /// <summary>Called by RaceManager when a racer crosses the finish line.</summary>
         public void OnRacerCrossedFinish(int racerId)
         {
             if (raceFinished) return;
+            if (!raceStarted) return;
 
             RacerData data = FindRacer(racerId);
             if (data == null) return;
