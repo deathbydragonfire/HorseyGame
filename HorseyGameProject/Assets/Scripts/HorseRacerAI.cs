@@ -53,6 +53,7 @@ namespace HorseyGame
 
         private MAnimal animal;
         private Vector3[] waypoints;
+        private Vector3[] rawSplinePoints;
         private int currentWaypointIndex;
         private bool hasPath;
         private bool splineClosed;
@@ -67,6 +68,9 @@ namespace HorseyGame
         private bool isOvertaking;
         private int overtakeTargetIndex = -1;
         private int animalLayerMask;
+        private float raceStartTime = -1f;
+
+        private const float SprintRampUpDuration = 1.5f;
 
         public float CurrentProgress => waypoints != null && waypoints.Length > 0
             ? currentWaypointIndex / (float)waypoints.Length
@@ -137,21 +141,50 @@ namespace HorseyGame
             SampleWaypoints();
             if (waypoints == null || waypoints.Length == 0) return;
 
+            currentWaypointIndex = FindStartingWaypointIndex();
+        }
+
+        private int FindStartingWaypointIndex()
+        {
+            Vector3[] searchPoints = (rawSplinePoints != null && rawSplinePoints.Length > 0) ? rawSplinePoints : waypoints;
+            if (searchPoints == null || searchPoints.Length == 0) return 0;
+
             Vector3 pos = animal.transform.position;
             Vector3 posFlat = new Vector3(pos.x, 0f, pos.z);
-            float bestDist = float.MaxValue;
+            Vector3 facingFlat = new Vector3(animal.transform.forward.x, 0f, animal.transform.forward.z);
+            if (facingFlat.sqrMagnitude > 0.001f)
+                facingFlat.Normalize();
+
+            float bestScore = float.MaxValue;
             int bestIdx = 0;
-            for (int i = 0; i < waypoints.Length; i++)
+
+            for (int i = 0; i < searchPoints.Length; i++)
             {
-                Vector3 wpFlat = new Vector3(waypoints[i].x, 0f, waypoints[i].z);
-                float d = (wpFlat - posFlat).sqrMagnitude;
-                if (d < bestDist)
+                Vector3 wpFlat = new Vector3(searchPoints[i].x, 0f, searchPoints[i].z);
+                float distSq = (wpFlat - posFlat).sqrMagnitude;
+
+                int nextI = (i + 1) < searchPoints.Length ? i + 1 : (splineClosed ? 0 : i);
+                Vector3 nextFlat = new Vector3(searchPoints[nextI].x, 0f, searchPoints[nextI].z);
+                Vector3 segDir = nextFlat - wpFlat;
+                float alignment = segDir.sqrMagnitude > 0.001f
+                    ? Vector3.Dot(segDir.normalized, facingFlat)
+                    : 0f;
+
+                if (alignment < 0f) continue;
+
+                float score = distSq * (1f - Mathf.Clamp01(alignment) * 0.5f);
+                if (score < bestScore)
                 {
-                    bestDist = d;
+                    bestScore = score;
                     bestIdx = i;
                 }
             }
-            currentWaypointIndex = bestIdx;
+
+            int advanced = bestIdx + lookAheadWaypoints;
+            if (advanced >= waypoints.Length)
+                advanced = splineClosed ? advanced % waypoints.Length : waypoints.Length - 1;
+
+            return advanced;
         }
 
         private void SampleWaypoints()
@@ -171,9 +204,12 @@ namespace HorseyGame
                 else
                 {
                     waypoints = null;
+                    rawSplinePoints = null;
                     return;
                 }
             }
+
+            rawSplinePoints = rawPoints;
 
             waypoints = new Vector3[waypointCount];
             float laneOffset = profile != null ? profile.preferredLane * profile.laneWidth : 0f;
@@ -284,21 +320,15 @@ namespace HorseyGame
         {
             if (!hasPath || animal == null || !enabled) return;
             if (RaceManager.Instance == null || !RaceManager.Instance.RaceStarted) return;
+
+            if (raceStartTime < 0f)
+                raceStartTime = Time.time;
+
             if (waypoints == null || waypoints.Length == 0)
             {
                 SampleWaypoints();
                 if (waypoints == null || waypoints.Length == 0) return;
-                Vector3 startPos = animal.transform.position;
-                Vector3 startFlat = new Vector3(startPos.x, 0f, startPos.z);
-                float bestDist = float.MaxValue;
-                int bestIdx = 0;
-                for (int i = 0; i < waypoints.Length; i++)
-                {
-                    Vector3 wpFlat = new Vector3(waypoints[i].x, 0f, waypoints[i].z);
-                    float d = (wpFlat - startFlat).sqrMagnitude;
-                    if (d < bestDist) { bestDist = d; bestIdx = i; }
-                }
-                currentWaypointIndex = bestIdx;
+                currentWaypointIndex = FindStartingWaypointIndex();
             }
 
             Vector3 pos = animal.transform.position;
@@ -334,18 +364,29 @@ namespace HorseyGame
             }
             splineDir.Normalize();
 
-            Vector3 avoidanceOffset = CalculateAvoidanceOffset(pos, splineDir);
-            Vector3 overtakeOffset = CalculateOvertakeOffset(pos, splineDir);
-            float draftingMult = CalculateDraftingBoost(pos, splineDir);
+            bool inRampUp = raceStartTime >= 0f && (Time.time - raceStartTime) < SprintRampUpDuration;
+            if (inRampUp && isOvertaking)
+            {
+                isOvertaking = false;
+                overtakeTargetIndex = -1;
+            }
 
-            currentAvoidanceOffset = Vector3.Lerp(currentAvoidanceOffset, avoidanceOffset, Time.deltaTime * LateralBlendSpeed);
-            currentOvertakeOffset = Vector3.Lerp(currentOvertakeOffset, overtakeOffset, Time.deltaTime * LateralBlendSpeed);
+            Vector3 avoidanceOffset = inRampUp ? Vector3.zero : CalculateAvoidanceOffset(pos, splineDir);
+            Vector3 overtakeOffset = inRampUp ? Vector3.zero : CalculateOvertakeOffset(pos, splineDir);
+            float draftingMult = inRampUp ? 1f : CalculateDraftingBoost(pos, splineDir);
+
+            currentAvoidanceOffset = inRampUp
+                ? Vector3.zero
+                : Vector3.Lerp(currentAvoidanceOffset, avoidanceOffset, Time.deltaTime * LateralBlendSpeed);
+            currentOvertakeOffset = inRampUp
+                ? Vector3.zero
+                : Vector3.Lerp(currentOvertakeOffset, overtakeOffset, Time.deltaTime * LateralBlendSpeed);
 
             Vector3 dir = (splineDir + currentAvoidanceOffset + currentOvertakeOffset).normalized;
 
             float moveMultiplier = 1f;
             bool sprint = true;
-            if (useCurvatureSpeed)
+            if (!inRampUp && useCurvatureSpeed)
             {
                 float angle = GetCurvatureAngleAtWaypoint(currentWaypointIndex);
                 if (angle > sharpTurnAngle)
@@ -655,11 +696,14 @@ namespace HorseyGame
         /// <summary>Resets waypoint progress to the start.</summary>
         public void ResetToStart()
         {
-            currentWaypointIndex = 0;
+            currentWaypointIndex = (animal != null && waypoints != null && waypoints.Length > 0)
+                ? FindStartingWaypointIndex()
+                : 0;
             isOvertaking = false;
             overtakeTargetIndex = -1;
             currentAvoidanceOffset = Vector3.zero;
             currentOvertakeOffset = Vector3.zero;
+            raceStartTime = -1f;
         }
     }
 }

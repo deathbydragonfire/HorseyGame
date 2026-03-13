@@ -751,6 +751,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8a59ba33f126ab24db49f9659640884e, type: 3}
+--- !u!1 &153250914 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6953927076399631178, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
+  m_PrefabInstance: {fileID: 1376675179}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &156501513 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2d3f7ecb366440e408cfb63e7157c2d3, type: 3}
@@ -926,6 +931,20 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6562182788169337099, guid: a674ce74fe99da94ca4a6c3c03c75652, type: 3}
   m_PrefabInstance: {fileID: 1755819828}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &177870362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 177870358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e6b90e2a74c9724493ab3d9b2e61ba5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HorseyGame.HorseAirMomentum
+  momentumRetention: 1
+  groundedFadeTime: 0.15
 --- !u!1001 &189868573
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4126,7 +4145,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8222277297668219665, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1192365801}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6953927076399631178, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1849333729}
   m_SourcePrefab: {fileID: 100100000, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
 --- !u!1001 &355496473
 PrefabInstance:
@@ -6150,7 +6172,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8222277297668219665, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2079488146}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6953927076399631178, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1372843114}
   m_SourcePrefab: {fileID: 100100000, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
 --- !u!1 &682356884
 GameObject:
@@ -8452,7 +8477,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8222277297668219665, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1486215672}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6953927076399631178, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1222762793}
   m_SourcePrefab: {fileID: 100100000, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
 --- !u!1001 &889468080
 PrefabInstance:
@@ -11083,6 +11111,25 @@ Transform:
   - {fileID: 1028466504}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1222762790 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6953927076399631178, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
+  m_PrefabInstance: {fileID: 888183352}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1222762793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1222762790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e6b90e2a74c9724493ab3d9b2e61ba5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HorseyGame.HorseAirMomentum
+  momentumRetention: 1
+  groundedFadeTime: 0.15
 --- !u!4 &1234274444 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: e0abc953ae1e10a4f90c07bd0202c026, type: 3}
@@ -11474,6 +11521,25 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d3cd11f6f9bc60c4ba66496b9779b462, type: 3}
+--- !u!1 &1372843111 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6953927076399631178, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
+  m_PrefabInstance: {fileID: 679034179}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1372843114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372843111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e6b90e2a74c9724493ab3d9b2e61ba5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HorseyGame.HorseAirMomentum
+  momentumRetention: 1
+  groundedFadeTime: 0.15
 --- !u!1 &1373857105
 GameObject:
   m_ObjectHideFlags: 0
@@ -12829,7 +12895,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8222277297668219665, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 10742110}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6953927076399631178, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2090938020}
   m_SourcePrefab: {fileID: 100100000, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
 --- !u!1001 &1387339937
 PrefabInstance:
@@ -16854,6 +16923,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5299509761241555280, guid: a674ce74fe99da94ca4a6c3c03c75652, type: 3}
       insertIndex: -1
       addedObject: {fileID: 177870360}
+    - targetCorrespondingSourceObject: {fileID: 5299509761241555280, guid: a674ce74fe99da94ca4a6c3c03c75652, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 177870362}
   m_SourcePrefab: {fileID: 100100000, guid: a674ce74fe99da94ca4a6c3c03c75652, type: 3}
 --- !u!1001 &1782096896
 PrefabInstance:
@@ -17300,6 +17372,25 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -6110160470558836072, guid: 598ea5e3adce934408dccdc257087e8d, type: 3}
+--- !u!1 &1849333726 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6953927076399631178, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
+  m_PrefabInstance: {fileID: 335517268}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1849333729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1849333726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e6b90e2a74c9724493ab3d9b2e61ba5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HorseyGame.HorseAirMomentum
+  momentumRetention: 1
+  groundedFadeTime: 0.15
 --- !u!4 &1863655822 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3d8ea64170969b8468df087137312add, type: 3}
@@ -18501,6 +18592,20 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8222277297668219665, guid: d4a585b5fcbef5744af67675b0f4d2e9, type: 3}
   m_PrefabInstance: {fileID: 1376675179}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2090938020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 153250914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e6b90e2a74c9724493ab3d9b2e61ba5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HorseyGame.HorseAirMomentum
+  momentumRetention: 1
+  groundedFadeTime: 0.15
 --- !u!1 &2106886495
 GameObject:
   m_ObjectHideFlags: 0
